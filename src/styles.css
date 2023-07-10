@@ -98,5 +98,13 @@ button {
 .search-form {
   display: flex;
   justify-content: center;
-  border-radius: 8px;
+}
+.autoload {
+  align-self: flex-end;
+  margin-left: 20px;
+  color: #ffffff;
+}
+.autoload input {
+  width: 20px;
+  height: 20px;
 }

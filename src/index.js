@@ -4,9 +4,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-// axios.defaults.headers.common['x-api-key'] =
-//   '38057284-2d27e05e6e0b6b5960c0abd06';
-
+const target = document.querySelector('.js-guard');
 const form = document.querySelector('#search-form');
 const divGallery = document.querySelector('.gallery');
 const btnLoader = document.querySelector('.load-more');
@@ -16,11 +14,27 @@ const lightbox = new SimpleLightbox('.gallery-link', {
   captionsData: 'alt',
   captionDelay: 250,
 });
+let options = {
+  root: null,
+  rootMargin: '300px',
+};
+let observer = new IntersectionObserver(onLoad, options);
 
 closeLoader();
 
 form.addEventListener('submit', onSubmit);
 btnLoader.addEventListener('click', loadNextPage);
+form.autoload.addEventListener('change', autoloadChange);
+
+function autoloadChange(e) {
+  if (e.target.checked) {
+    observer.observe(target);
+    closeLoader();
+  } else {
+    observer.unobserve(target);
+    openLoader();
+  }
+}
 
 function onSubmit(evt) {
   evt.preventDefault();
@@ -39,6 +53,16 @@ async function loadNextPage() {
   renderGalleryCard(data.hits, data.totalHits);
   console.log(data);
 }
+
+function onLoad(entries) {
+  console.log(form);
+  console.log(entries);
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      loadNextPage();
+    }
+  });
+}
 function openLoader() {
   btnLoader.classList.remove('is-hidden');
 }
@@ -55,6 +79,8 @@ function renderGalleryCard(hits, totalHits) {
   if (currentPage === 1) {
     successSearch(totalHits);
     divGallery.innerHTML = createMarkupCard(hits);
+    console.dir(form.autoload);
+    if (form.autoload.checked) observer.observe(target);
   } else {
     divGallery.insertAdjacentHTML('beforeEnd', createMarkupCard(hits));
     smoothScrollGallery(hits[0].id);
@@ -63,8 +89,9 @@ function renderGalleryCard(hits, totalHits) {
 
   if (totalHits > PER_PAGE * currentPage) {
     currentPage += 1;
-    openLoader();
+    if (!form.autoload.checked) openLoader();
   } else {
+    observer.unobserve(target);
     endSearch();
   }
 }
