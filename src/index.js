@@ -55,8 +55,6 @@ async function loadNextPage() {
 }
 
 function onLoad(entries) {
-  console.log(form);
-  console.log(entries);
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       loadNextPage();
@@ -79,7 +77,7 @@ function renderGalleryCard(hits, totalHits) {
   if (currentPage === 1) {
     successSearch(totalHits);
     divGallery.innerHTML = createMarkupCard(hits);
-    console.dir(form.autoload);
+    // console.dir(form.autoload);
     if (form.autoload.checked) observer.observe(target);
   } else {
     divGallery.insertAdjacentHTML('beforeEnd', createMarkupCard(hits));
